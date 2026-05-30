@@ -2,7 +2,6 @@
 # MAIN PIPELINE ENTRY SCRIPT
 # =========================================================
 
-# Import core pipeline components
 from src.data.data_pipeline import run_data_pipeline
 from src.features.feature_engineering import run_feature_engineering
 from src.utils.utils import load_config
@@ -10,52 +9,50 @@ from src.utils.utils import load_config
 
 def main():
     """
-    Main orchestration function for the entire data workflow.
+    Central orchestration pipeline for end-to-end data processing.
 
-    Steps:
-        1. Load configuration settings
-        2. Run data ingestion and cleaning pipeline
-        3. Perform feature engineering
-        4. Save final processed dataset
+    This script coordinates the full workflow:
+        1. Load configuration
+        2. Run data ingestion and preprocessing
+        3. Apply feature engineering
+        4. Save final dataset for downstream use (modeling/dashboard)
 
-    This script serves as the central entry point for preparing data
-    before launching the dashboard or training models.
+    It acts as the primary entry point before analytics or model training.
     """
 
-    # Load configuration from YAML file
+    # Load project configuration (paths, parameters, settings)
     config = load_config()
-    
+
     # =========================================================
     # STEP 1: DATA PIPELINE
     # =========================================================
-    # Load, clean, and preprocess raw data
+    # Load raw dataset and apply cleaning + preprocessing steps
     df = run_data_pipeline(
         config['paths']['raw_data'],
         config['paths']['processed_data']
     )
-    
+
     # =========================================================
     # STEP 2: FEATURE ENGINEERING
     # =========================================================
-    # Generate additional features for analysis and modeling
+    # Transform raw features into model-ready / analysis-ready features
     df_engineered = run_feature_engineering(df, config)
-    
+
     # =========================================================
-    # STEP 3: SAVE FINAL DATASET
+    # STEP 3: SAVE FINAL OUTPUT
     # =========================================================
-    # Overwrite processed dataset with engineered features included
+    # Persist engineered dataset for downstream consumption
     df_engineered.to_csv(
         config['paths']['processed_data'],
         index=False
     )
 
-    # Inform user that pipeline execution is complete
+    # Pipeline completion message
     print("Project Ready. Run 'streamlit run app/dashboard.py' to view.")
 
 
 # =========================================================
-# SCRIPT ENTRY POINT
+# ENTRY POINT
 # =========================================================
 if __name__ == "__main__":
-    # Execute pipeline when script is run directly
     main()
